@@ -19,7 +19,7 @@ export class Calculator {
       return CONSTANTS.TAX_RATES.additional
     }
 
-    return this.dividends > 50271
+    return this.dividends >= 50271
       ? CONSTANTS.TAX_RATES.higher
       : CONSTANTS.TAX_RATES.basic
   }
@@ -34,5 +34,9 @@ export class Calculator {
 
   getGrossDividends() {
     return this.dividends - this.getTaxPayable()
+  }
+
+  getTaxRatePercentage() {
+    return this.getTaxRate() * 100
   }
 }

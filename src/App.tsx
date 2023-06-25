@@ -1,35 +1,16 @@
 import { useReducer } from 'react'
 import JsonDump from './components/JsonDump'
-import { Calculator, CONSTANTS } from './Calculator'
-
-interface State {
-  dividends: string
-}
-
-enum ActionType {
-  SET_DIVIDENDS = 'SET_DIVIDENDS',
-}
-
-type Action = { type: ActionType.SET_DIVIDENDS; payload: string }
-
-function reducer(state: State, action: Action) {
-  switch (action.type) {
-    case ActionType.SET_DIVIDENDS:
-      return { ...state, dividends: action.payload }
-    default:
-      return state
-  }
-}
+import { Calculator, CONSTANTS } from './lib/Calculator'
+import { formatMoney } from './lib/helpers'
+import { ActionType, appReducer } from './lib/store'
 
 function App() {
-  const [state, dispatch] = useReducer(reducer, { dividends: '10000' })
-
+  const [state, dispatch] = useReducer(appReducer, { dividends: '10000' })
   const dividends = Number(state.dividends)
-
   const calculator = new Calculator(dividends)
 
   return (
-    <main className="mx-auto my-6 max-w-2xl">
+    <main className="mx-auto my-6 max-w-2xl px-4">
       <h1 className="mb-4 text-2xl font-bold">Dividends tax calculator</h1>
 
       <JsonDump value={state} />
@@ -40,7 +21,8 @@ function App() {
         </label>
 
         <input
-          type="text"
+          autoFocus
+          type="number"
           name="dividends"
           value={state.dividends}
           onChange={(event) =>
@@ -54,28 +36,51 @@ function App() {
 
       {!!dividends && (
         <>
-          <h2 className="mb-3 mt-7 text-lg font-bold">Results</h2>
+          <h2 className="mb-4 mt-8 text-2xl font-bold">Results</h2>
           <table>
             <thead>
               <tr>
-                <td>Tax payable</td>
-                <td>{calculator.getTaxPayable()}</td>
+                <td>Taxable amount</td>
+                <td>
+                  <span className="font-bold">
+                    {formatMoney(calculator.getTaxableAmount())}{' '}
+                  </span>
+                  ({formatMoney(CONSTANTS.ANNUAL_DIVIDENDS_ALLOWANCE)} free
+                  annual allowance)
+                </td>
               </tr>
 
               <tr>
-                <td>Taxable amount</td>
-                <td>
-                  {calculator.getTaxableAmount()} (
-                  {CONSTANTS.ANNUAL_DIVIDENDS_ALLOWANCE} free annual allowance)
+                <td>Tax rate</td>
+                <td className="font-bold">
+                  {calculator.getTaxRatePercentage()}%
+                </td>
+              </tr>
+
+              <tr>
+                <td>Tax payable</td>
+                <td className="font-bold">
+                  {formatMoney(calculator.getTaxPayable())}
                 </td>
               </tr>
 
               <tr>
                 <td>Gross dividends</td>
-                <td>{calculator.getGrossDividends()}</td>
+                <td className="font-bold">
+                  {formatMoney(calculator.getGrossDividends())}
+                </td>
               </tr>
             </thead>
           </table>
+
+          <hr className="my-8" />
+          <h2 className="mb-2 text-lg font-bold">Links</h2>
+
+          <ul className="pl-8">
+            <li className="list-disc">
+              <a href="https://www.gov.uk/tax-on-dividends">Tax on dividends</a>
+            </li>
+          </ul>
         </>
       )}
     </main>
