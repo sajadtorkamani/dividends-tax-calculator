@@ -17,7 +17,7 @@ function App() {
 
       <div>
         <label htmlFor="dividends" className="block">
-          How much dividends did you claim?
+          How much dividends did you claim for the tax year?
         </label>
 
         <input
