@@ -1,5 +1,6 @@
-import { useMemo, useReducer } from 'react'
+import { useReducer } from 'react'
 import JsonDump from './components/JsonDump'
+import { Calculator, CONSTANTS } from './Calculator'
 
 interface State {
   dividends: string
@@ -10,14 +11,6 @@ enum ActionType {
 }
 
 type Action = { type: ActionType.SET_DIVIDENDS; payload: string }
-
-const TAX_RATES = {
-  basic: 0.0875,
-  higher: 0.3375,
-  additional: 0.3935,
-}
-
-const ANNUAL_DIVIDENDS_ALLOWANCE = 1000
 
 function reducer(state: State, action: Action) {
   switch (action.type) {
@@ -33,19 +26,7 @@ function App() {
 
   const dividends = Number(state.dividends)
 
-  // https://www.gov.uk/tax-on-dividends
-  function getTaxRate() {
-    if (dividends > 125140) {
-      return TAX_RATES.additional
-    }
-
-    return dividends > 50271 ? TAX_RATES.higher : TAX_RATES.basic
-  }
-
-  const taxRate = getTaxRate()
-  const taxableAmount = Math.max(dividends - ANNUAL_DIVIDENDS_ALLOWANCE, 0)
-  const taxPayable = taxableAmount * taxRate
-  const grossDividends = dividends - taxPayable
+  const calculator = new Calculator(dividends)
 
   return (
     <main className="mx-auto my-6 max-w-2xl">
@@ -53,7 +34,7 @@ function App() {
 
       <JsonDump value={state} />
 
-      <div className="mb-6">
+      <div>
         <label htmlFor="dividends" className="block">
           How much dividends did you claim?
         </label>
@@ -72,19 +53,30 @@ function App() {
       </div>
 
       {!!dividends && (
-        <table>
-          <thead>
-            <tr>
-              <td>Tax payable</td>
-              <td>{taxPayable}</td>
-            </tr>
+        <>
+          <h2 className="mb-3 mt-7 text-lg font-bold">Results</h2>
+          <table>
+            <thead>
+              <tr>
+                <td>Tax payable</td>
+                <td>{calculator.getTaxPayable()}</td>
+              </tr>
 
-            <tr>
-              <td>Gross dividends</td>
-              <td>{grossDividends}</td>
-            </tr>
-          </thead>
-        </table>
+              <tr>
+                <td>Taxable amount</td>
+                <td>
+                  {calculator.getTaxableAmount()} (
+                  {CONSTANTS.ANNUAL_DIVIDENDS_ALLOWANCE} free annual allowance)
+                </td>
+              </tr>
+
+              <tr>
+                <td>Gross dividends</td>
+                <td>{calculator.getGrossDividends()}</td>
+              </tr>
+            </thead>
+          </table>
+        </>
       )}
     </main>
   )
