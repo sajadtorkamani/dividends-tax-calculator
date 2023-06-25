@@ -78,7 +78,9 @@ function App() {
 
           <ul className="pl-8">
             <li className="list-disc">
-              <a href="https://www.gov.uk/tax-on-dividends">Tax on dividends</a>
+              <a href="https://www.gov.uk/tax-on-dividends" target="_blank">
+                Tax on dividends
+              </a>
             </li>
           </ul>
         </>
